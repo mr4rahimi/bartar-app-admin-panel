@@ -1,0 +1,29 @@
+                            <SelectValue placeholder="مرحله سفارش" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {stageOptions.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          className="mt-2 w-full border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                          onClick={() => markNotRepairable(order.id)}
+                        >
+                          عدم تعمیر
+                        </Button>
+                      </td>
+                      <td className="p-3 align-top space-y-2">
+                        <Select
+                          value={techValue ? String(techValue) : undefined}
+                          onValueChange={(val) => setDraft(order.id, { technicianId: Number(val) })}
+                        >
+                          <SelectTrigger className="w-44">
+                            <SelectValue placeholder={order.technician?.name || 'انتخاب تکنسین'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {technicians.map((tech) => (
+                              <SelectItem key={tech.id} value={String(tech.id)}>
+                                {tech.name || tech.phone || `تکنسین ${tech.id}`} {tech.phone ? `- ${tech.phone}` : ""}
