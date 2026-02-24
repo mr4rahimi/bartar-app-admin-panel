@@ -17,6 +17,9 @@ import PartPricesPage from './pages/admin/PartPricesPage';
 import PartLaborsPage from './pages/admin/PartLaborsPage';
 import PricingConfigPage from './pages/admin/PricingConfigPage';
 import ProblemPartMappingPage from './pages/admin/ProblemPartMappingPage';
+mport CallLogsNewPage from './pages/admin/CallLogsNewPage';
+import CallLogsHistoryPage from './pages/admin/CallLogsHistoryPage';
+import CallLogsReportsPage from './pages/admin/CallLogsReportsPage';
 
 export default function App() {
   return (
@@ -45,6 +48,9 @@ export default function App() {
                 <Route path="/admin/part-labors"element={<ProtectedRoute><PartLaborsPage /></ProtectedRoute>} />
                 <Route path="/admin/pricing-config"element={<ProtectedRoute><PricingConfigPage /></ProtectedRoute>} />
                 <Route path="/admin/problem-part-mapping"element={<ProtectedRoute><ProblemPartMappingPage /></ProtectedRoute>} />
+                <Route path="/admin/calls/new" element={<ProtectedRoute><CallLogsNewPage /></ProtectedRoute>} />
+                <Route path="/admin/calls/history" element={<ProtectedRoute><CallLogsHistoryPage /></ProtectedRoute>} />
+                <Route path="/admin/calls/reports" element={<ProtectedRoute><CallLogsReportsPage /></ProtectedRoute>} />
 
               </Routes>
 
