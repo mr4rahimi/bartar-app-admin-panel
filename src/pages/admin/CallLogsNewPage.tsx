@@ -3,10 +3,11 @@ import client from '../../api/client';
 import { toast } from 'react-toastify';
 
 type Service = { id: number; name: string };
-type Brand = { id: number; name: string; services?: any[] };
 type DeviceModel = { id: number; name: string; brandId: number; serviceId?: number | null };
 type Problem = { id: number; name: string; serviceId: number };
 type Part = { id: number; name: string; serviceId: number };
+type ServiceRel = { service?: { id: number } };
+type Brand = { id: number; name: string; services?: ServiceRel[] };
 
 type CallLog = {
   id: number;
@@ -85,22 +86,29 @@ export default function CallLogsNewPage() {
       setLoadingBase(true);
 
       const [rs, rb, rmodels, rproblems, rparts] = await Promise.all([
-        client.get('/admin/services'),
-        client.get('/admin/brands'),
-        client.get('/admin/models', { params: { serviceId: SERVICE_ID } }),
-        client.get('/admin/problems'),
-        client.get('/admin/parts'),
-      ]);
+  client.get<Service[]>('/admin/services'),
+  client.get<Brand[]>('/admin/brands'),
+  client.get<DeviceModel[]>('/admin/models', { params: { serviceId: SERVICE_ID } }),
+  client.get<Problem[]>('/admin/problems'),
+  client.get<Part[]>('/admin/parts'),
+]);
 
       setServices(rs.data || []);
       setBrands(rb.data || []);
       setModels(Array.isArray(rmodels.data) ? rmodels.data : []);
       setProblems(Array.isArray(rproblems.data) ? rproblems.data : []);
       setParts(Array.isArray(rparts.data) ? rparts.data : []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      toast.error(e?.response?.data?.message || 'خطا در دریافت داده‌های پایه');
-    } finally {
+      const message =
+      typeof e === 'object' &&
+      e !== null &&
+     'response' in e &&
+    (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      ? (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      : 'خطا در عملیات';
+  toast.error(message);
+} finally {
       setLoadingBase(false);
     }
   }
@@ -108,25 +116,34 @@ export default function CallLogsNewPage() {
   async function loadList(forDate: string) {
     try {
       setLoadingList(true);
-      const r = await client.get('/admin/call-logs', { params: { date: forDate } });
-      setRows(Array.isArray(r.data) ? r.data : []);
+      const r = await client.get<CallLog[]>('/admin/call-logs', {
+        params: { date: forDate },
+      });
+     setRows(r.data ?? []);
       setSelectedRowId(null);
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.response?.data?.message || 'خطا در دریافت لیست تماس‌ها');
-    } finally {
+    } catch (e: unknown) {
+  console.error(e);
+  const message =
+    typeof e === 'object' &&
+    e !== null &&
+    'response' in e &&
+    (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      ? (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      : 'خطا در عملیات';
+  toast.error(message);
+} finally {
       setLoadingList(false);
     }
   }
 
   useEffect(() => {
     loadBase();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   useEffect(() => {
     loadList(date);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [date]);
 
 
@@ -135,7 +152,7 @@ export default function CallLogsNewPage() {
 
   
     const brandFiltered =
-      brands?.filter((b) => (b.services || []).some((x: any) => x?.service?.id === SERVICE_ID)) || [];
+      brands?.filter((b) => (b.services || []).some((x) => x?.service?.id === SERVICE_ID)) || [];
 
     for (const b of brandFiltered) s.push({ kind: 'brand', id: b.id, label: b.name });
 
@@ -208,10 +225,17 @@ export default function CallLogsNewPage() {
 
       await loadList(date);
       clearFormAndFocus();
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.response?.data?.message || 'خطا در ثبت تماس');
-    } finally {
+    } catch (e: unknown) {
+  console.error(e);
+  const message =
+    typeof e === 'object' &&
+    e !== null &&
+    'response' in e &&
+    (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      ? (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      : 'خطا در عملیات';
+  toast.error(message);
+} finally {
       setSubmitting(false);
     }
   }
@@ -220,10 +244,17 @@ export default function CallLogsNewPage() {
     try {
       await client.patch(`/admin/call-logs/${row.id}/finalize`, { finalized });
       await loadList(date);
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.response?.data?.message || 'خطا در تغییر وضعیت قطعی');
-    }
+    } catch (e: unknown) {
+  console.error(e);
+  const message =
+    typeof e === 'object' &&
+    e !== null &&
+    'response' in e &&
+    (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      ? (e as { response?: { data?: { message?: string } } }).response?.data?.message
+      : 'خطا در عملیات';
+  toast.error(message);
+}
   }
 
   function onSubjectKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -400,7 +431,8 @@ export default function CallLogsNewPage() {
                       top: 72,
                       left: 0,
                       right: 0,
-                      background: 'white',
+                      background: 'var(--bp-surface, #111827)',
+                      color: 'var(--bp-text, #fff)',
                       border: '1px solid rgba(0,0,0,0.08)',
                       borderRadius: 12,
                       boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
@@ -542,7 +574,7 @@ export default function CallLogsNewPage() {
           <div style={{ marginTop: 12, opacity: 0.75 }}>برای این تاریخ تماسی ثبت نشده.</div>
         ) : (
           <div style={{ marginTop: 12, overflowX: 'auto' }}>
-            <table className="bp-partpricing-table" style={{ width: '100%' }}>
+           <table className="bp-partpricing-table bp-calllogs-table" style={{ width: '100%' }}>
               <thead>
                 <tr>
                   <th>اپراتور</th>

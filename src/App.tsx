@@ -17,7 +17,7 @@ import PartPricesPage from './pages/admin/PartPricesPage';
 import PartLaborsPage from './pages/admin/PartLaborsPage';
 import PricingConfigPage from './pages/admin/PricingConfigPage';
 import ProblemPartMappingPage from './pages/admin/ProblemPartMappingPage';
-mport CallLogsNewPage from './pages/admin/CallLogsNewPage';
+import CallLogsNewPage from './pages/admin/CallLogsNewPage';
 import CallLogsHistoryPage from './pages/admin/CallLogsHistoryPage';
 import CallLogsReportsPage from './pages/admin/CallLogsReportsPage';
 
