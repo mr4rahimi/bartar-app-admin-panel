@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FiGrid, FiSettings, FiPackage } from 'react-icons/fi';
+import { FiGrid, FiSettings, FiPackage, FiPhone, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import clsx from 'clsx';
 
-const NavItem: React.FC<{ to: string; label: string; icon?: React.ReactNode }> = ({ to, label, icon }) => {
+const NavItem: React.FC<{ to: string; label: string; icon?: React.ReactNode; indent?: boolean }> = ({
+  to,
+  label,
+  icon,
+  indent,
+}) => {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
-        clsx('bp-sticky-sidebar-navitem-2025', isActive && 'bp-sticky-sidebar-navitem-2025--active')
+        clsx(
+          'bp-sticky-sidebar-navitem-2025',
+          isActive && 'bp-sticky-sidebar-navitem-2025--active',
+          indent && 'bp-sticky-sidebar-navitem-2025--indent',
+        )
       }
     >
       <div className="bp-sticky-sidebar-icon-2025">{icon}</div>
@@ -18,6 +27,8 @@ const NavItem: React.FC<{ to: string; label: string; icon?: React.ReactNode }> =
 };
 
 export default function Sidebar() {
+  const [callsOpen, setCallsOpen] = useState(true);
+
   return (
     <div className="bp-sticky-sidebar-panel-2025">
       <div className="bp-sticky-sidebar-brand-2025">
@@ -43,6 +54,29 @@ export default function Sidebar() {
           <NavItem to="/admin/users" label="کاربران" icon={<FiPackage />} />
           <NavItem to="/admin/orders" label="سفارشات" icon={<FiPackage />} />
           <NavItem to="/admin/technician" label="تکنسین ها" icon={<FiPackage />} />
+
+          {/* Calls accordion */}
+          <button
+            type="button"
+            onClick={() => setCallsOpen((v) => !v)}
+            className={clsx('bp-sticky-sidebar-navitem-2025', 'bp-sticky-sidebar-navitem-2025--accordion')}
+          >
+            <div className="bp-sticky-sidebar-icon-2025">
+              <FiPhone />
+            </div>
+            <div className="bp-sticky-sidebar-label-2025">ثبت تماس‌ها</div>
+            <div className="bp-sticky-sidebar-accordion-caret-2025">
+              {callsOpen ? <FiChevronDown /> : <FiChevronRight />}
+            </div>
+          </button>
+
+          {callsOpen && (
+            <>
+              <NavItem to="/admin/calls/new" label="ثبت تماس جدید" icon={<span />} indent />
+              <NavItem to="/admin/calls/history" label="تاریخچه" icon={<span />} indent />
+              <NavItem to="/admin/calls/reports" label="گزارش" icon={<span />} indent />
+            </>
+          )}
         </nav>
       </div>
 
