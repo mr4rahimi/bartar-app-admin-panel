@@ -143,7 +143,7 @@ export default function CallLogsHistoryPage() {
           <div>
             <h3 style={{ margin: 0 }}>تاریخچه تماس‌ها</h3>
             <div style={{ opacity: 0.8, marginTop: 6 }}>
-              جستجو و فیلتر روی همه تماس‌ها (Ajax)
+             تاریخچه تماس ها
             </div>
           </div>
 
