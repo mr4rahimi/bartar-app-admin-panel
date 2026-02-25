@@ -81,6 +81,12 @@ export default function CallLogsNewPage() {
 
   const quickResults = ['ارسال پستی', 'انجام نمی شود', 'اعلام قیمت'];
 
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingResult, setEditingResult] = useState<string>('');
+  const [savingCell, setSavingCell] = useState(false);
+
+  const [saving, setSaving] = useState(false);
+
   async function loadBase() {
     try {
       setLoadingBase(true);
@@ -197,9 +203,20 @@ export default function CallLogsNewPage() {
   }
 
   async function submitQuick() {
+
     const subjectText = subject.trim();
     const callerPhone = phone.trim();
     const resultText = result.trim();
+    if (saving) return;
+   setSaving(true);
+      try {
+  // ... \
+     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     } catch (e) {
+  // ...
+     }     finally {
+  setSaving(false);
+    }
 
     if (!subjectText) {
       toast.error('هدف تماس را وارد کنید');
@@ -328,7 +345,42 @@ export default function CallLogsNewPage() {
       toggleFinalize(row, next);
       return;
     }
-  }
+   }
+
+
+     function startEditResult(row: CallLog) {
+     setEditingId(row.id);
+     setEditingResult(row.resultText || '');
+    }
+
+    function cancelEditResult() {
+    setEditingId(null);
+    setEditingResult('');
+    }
+
+    async function saveEditResult(row: CallLog) {
+    if (savingCell) return;
+    setSavingCell(true);
+    try {
+    await client.patch(`/admin/call-logs/${row.id}`, {
+      resultText: editingResult.trim() ? editingResult.trim() : null,
+    });
+    await loadList(date);
+    cancelEditResult();
+    } catch (e: unknown) {
+    console.error(e);
+    const message =
+      typeof e === 'object' &&
+      e !== null &&
+      'response' in e &&
+      (e as { response?: { data?: { message?: string } } }).response?.data?.message
+        ? (e as { response?: { data?: { message?: string } } }).response?.data?.message
+        : 'خطا در ذخیره نتیجه';
+    toast.error(message);
+    } finally {
+    setSavingCell(false);
+    }
+   }
 
   const serviceName = useMemo(() => {
     return services.find((s) => s.id === SERVICE_ID)?.name || `#${SERVICE_ID}`;
@@ -545,7 +597,7 @@ export default function CallLogsNewPage() {
               <button
                 type="button"
                 className="btn btn-primary"
-                disabled={submitting}
+                disabled={saving}
                 onClick={submitQuick}
                 title="Enter"
               >
@@ -602,7 +654,50 @@ export default function CallLogsNewPage() {
                       <td>{hhmm(r.callTime)}</td>
                       <td style={{ minWidth: 260 }}>{r.subjectText}</td>
                       <td>{r.callerPhone}</td>
-                      <td style={{ minWidth: 240 }}>{r.resultText || ''}</td>
+                      <td style={{ minWidth: 240 }}>
+                        {editingId === r.id ? (
+                            <input
+                              className="form-input"
+                              value={editingResult}
+                              autoFocus
+                              onChange={(e) => setEditingResult(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              onBlur={() => saveEditResult(r)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  saveEditResult(r);
+                                }
+                                if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelEditResult();
+                                }
+                              }}
+                              style={{ height: 36 }}
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditResult(r);
+                              }}
+                              title="برای ویرایش کلیک کن"
+                              style={{
+                                width: '100%',
+                                textAlign: 'right',
+                                background: 'transparent',
+                                border: '1px dashed rgba(0,0,0,0.15)',
+                                borderRadius: 10,
+                                padding: '6px 10px',
+                                cursor: 'text',
+                                minHeight: 36,
+                              }}
+                            >
+                              {r.resultText || <span style={{ opacity: 0.5 }}>— برای نوشتن نتیجه کلیک کن —</span>}
+                            </button>
+                          )}
+                      </td>
                       <td>
                         <input
                           type="checkbox"
