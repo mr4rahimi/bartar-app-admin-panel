@@ -79,7 +79,7 @@ export default function CallLogsNewPage() {
   const [acOpen, setAcOpen] = useState(false);
   const [acIndex, setAcIndex] = useState(0);
 
-  const quickResults = ['ارسال پستی', 'انجام نمی شود', 'اعلام قیمت'];
+  const quickResults = ['ارسال پستی', 'انجام نمی شود', 'اعلام قیمت', 'تماس نامربوط', 'شعبه غرب', 'شعبه مطهری'];
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingResult, setEditingResult] = useState<string>('');
